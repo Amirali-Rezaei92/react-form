@@ -12,6 +12,7 @@ function BlogForm() {
 
     const [article, setArticle] = useState(resetArticle);
     const [listArticles, setListArticles] = useState([]);
+    const [editArticle , setEditArticle]= useState(null);
 
     const changeHandler = (event) => {
         setArticle({
@@ -21,20 +22,36 @@ function BlogForm() {
     };
 
     const addArticle = (event) => {
-        event.preventDefault();
+    event.preventDefault();
 
+    if (editArticle) {
+        // UPDATE
+        setListArticles(
+            listArticles.map(item =>
+                item.id === editArticle ? { ...article, id: editArticle } : item
+            )
+        );
+        setEditArticle(null);
+    } else {
+        // ADD
         const newArticle = {
             ...article,
             id: crypto.randomUUID()
         };
-
         setListArticles([...listArticles, newArticle]);
-        setArticle(resetArticle);
-        console.log(listArticles);
-    };
+    }
 
-    const removeArticle=(id)=>{
-        setListArticles(listArticles.filter(article => article.id!==id));
+    setArticle(resetArticle);
+};
+
+
+    const removeArticle = (id) => {
+        setListArticles(listArticles.filter(article => article.id !== id));
+    }
+    const editArticles = (id) => {
+        const selected = listArticles.find(item =>item.id ===id);
+        setArticle(selected);
+        setEditArticle(id);
     }
 
     return (
@@ -43,13 +60,13 @@ function BlogForm() {
 
             {listArticles.map(article => {
                 return (
-                    <div className="card p-2 my-2" key={article.id}>
+                    <div className="card p-2 my-2 card-background" key={article.id}>
                         <h4 className="pt-2">{`${article.title}`}</h4>
                         <hr />
                         <p>{`${article.textArea}`}</p>
                         <div className="d-flex gap-5">
-                            <button className=" border-0 bg-white text-primary"> <i class="bi bi-pencil-fill"></i> Modifica</button>
-                            <button className=" border-0 bg-white text-danger" onClick={()=>removeArticle(article.id)}> <i class="bi bi-trash3-fill" ></i> Elimina</button>
+                            <button className=" border-0 btn text-primary" onClick={() => editArticles(article.id)}> <i class="bi bi-pencil-fill"></i> Modifica</button>
+                            <button className="btn border-0  text-danger" onClick={() => removeArticle(article.id)}> <i class="bi bi-trash3-fill" ></i> Elimina</button>
                         </div>
                     </div>
                 )
@@ -77,8 +94,8 @@ function BlogForm() {
                 </div>
 
                 <div>
-                    <button className="btn btn-primary col-12">
-                        Aggiungi Articolo
+                    <button className={`btn col-12 ${editArticle ? "btn-warning" : "btn-primary"}`}>
+                        {editArticle ? "Salva Modifiche" : "Aggiungi Articolo"}
                     </button>
                 </div>
             </form>
